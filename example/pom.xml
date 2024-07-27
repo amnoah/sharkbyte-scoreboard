@@ -19,6 +19,10 @@
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -35,8 +39,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>shark.byte</groupId>
-            <artifactId>core</artifactId>
+            <groupId>com.github.amnoah</groupId>
+            <artifactId>sharkbyte-scoreboard</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>

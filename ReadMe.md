@@ -24,7 +24,7 @@ If you are using sharkbyte-scoreboard on the Spigot platform, I would highly rec
 
 BetterReload adds a universal reload event, replacing the traditional /reload command. This event is passed to plugins,
 allowing them to handle a reload as they see fit. Your plugin could use this event to cycle through all of your
-ConfigurationFile objects and call the load() function.
+Scoreboard objects and update the lines of text on them from your configuration.
 
 BetterReload also allows for users to individually reload plugins, removing the need for a reload command to be built
 into every plugin.

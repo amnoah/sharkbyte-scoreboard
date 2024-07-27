@@ -1,0 +1,8 @@
+name: sb-scoreboard-example
+version: 1.0.0
+author: am noah
+description: An example of sharkbyte-scoreboard in work.
+api-version: 1.13
+main: sharkbyte.scoreboard.example.ScoreboardExample
+depend:
+  - packetevents

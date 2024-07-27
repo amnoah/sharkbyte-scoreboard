@@ -31,6 +31,6 @@ into every plugin.
 
 # how to use
 
-You can add sharkbyte-configuration to your project using [JitPack](https://jitpack.io/#amnoah/sharkbyte-scoreboard/).
+You can add sharkbyte-scoreboard to your project using [JitPack](https://jitpack.io/#amnoah/sharkbyte-scoreboard/).
 Select the dependency system you're using and copy the repository/dependency settings into your project. From there,
 just reload your dependencies and you should have sharkbyte-scoreboard accessible from your project.

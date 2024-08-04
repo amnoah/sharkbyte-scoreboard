@@ -49,7 +49,18 @@ public class ScoreboardEntry {
     }
 
     /*
-     *
+     * Setters.
+     */
+
+    /**
+     * Manually force a line update.
+     */
+    public void setNameChanged(boolean nameChanged) {
+        this.nameChanged = nameChanged;
+    }
+
+    /*
+     * Update the text in the board.
      */
 
     /**

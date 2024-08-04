@@ -112,6 +112,9 @@ public class Scoreboard {
                 Component.text(title),
                 null
         ));
+
+        for (ScoreboardEntry entry : entries) entry.setNameChanged(entry.getDisplayName() != null);
+
     }
 
     /**

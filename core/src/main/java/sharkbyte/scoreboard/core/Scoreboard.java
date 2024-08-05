@@ -113,8 +113,12 @@ public class Scoreboard {
                 null
         ));
 
-        for (ScoreboardEntry entry : entries) entry.setNameChanged(entry.getDisplayName() != null);
-
+        for (ScoreboardEntry entry : entries) {
+            entry.setNameChanged(entry.getDisplayName() != null);
+            if (PacketEvents.getAPI().getServerManager().getVersion().isOlderThan(ServerVersion.V_1_20_3)) {
+                entry.setIdentifyingName(null);
+            }
+        }
     }
 
     /**

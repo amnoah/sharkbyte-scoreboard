@@ -53,6 +53,13 @@ public class ScoreboardEntry {
      */
 
     /**
+     * Manually set the identifying name.
+     */
+    public void setIdentifyingName(String identifyingName) {
+        this.identifyingName = identifyingName;
+    }
+
+    /**
      * Manually force a line update.
      */
     public void setNameChanged(boolean nameChanged) {

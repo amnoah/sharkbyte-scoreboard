@@ -23,36 +23,37 @@ public class PacketListener extends SimplePacketListenerAbstract {
 
         if (scoreboard == null) {
             scoreboard = new Scoreboard(event.getUser(), "scoreboard", "test", true);
-            scoreboard.create();
-            scoreboard.display();
-            scoreboard.setLine(0, "hello world!");
-            scoreboard.update();
-        } else {
-            WrapperPlayClientChatMessage message = new WrapperPlayClientChatMessage(event);
+        }
 
-            String[] elements = message.getMessage().split(" ", 2);
-            int index;
+        WrapperPlayClientChatMessage message = new WrapperPlayClientChatMessage(event);
 
-            switch (elements[0]) {
-                case "title":
-                    scoreboard.setTitle(elements[1]);
-                    scoreboard.update();
-                    break;
-                case "destroy":
-                    scoreboard.destroy();
-                    scoreboard = null;
-                    break;
-                default:
-                    try {
-                        index = Integer.parseInt(elements[0]);
-                    } catch (Exception e) {
-                        index = 0;
-                    }
+        String[] elements = message.getMessage().split(" ", 2);
+        int index;
 
-                    if (elements[1].equals("null")) scoreboard.setLine(index, null);
-                    else scoreboard.setLine(index, elements[1]);
-                    scoreboard.update();
-            }
+        switch (elements[0]) {
+            case "create":
+                scoreboard.create();
+                scoreboard.display();
+                scoreboard.setLine(0, "hello world!");
+                scoreboard.update();
+                break;
+            case "title":
+                scoreboard.setTitle(elements[1]);
+                scoreboard.update();
+                break;
+            case "destroy":
+                scoreboard.destroy();
+                break;
+            default:
+                try {
+                    index = Integer.parseInt(elements[0]);
+                } catch (Exception e) {
+                    index = 0;
+                }
+
+                if (elements[1].equals("null")) scoreboard.setLine(index, null);
+                else scoreboard.setLine(index, elements[1]);
+                scoreboard.update();
         }
     }
 }

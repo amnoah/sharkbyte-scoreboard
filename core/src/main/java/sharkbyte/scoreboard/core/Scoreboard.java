@@ -26,7 +26,7 @@ public class Scoreboard {
 
     private final User user;
     private String title;
-    private boolean changedTitle, changedOther, showNumbers;
+    private boolean created, changedTitle, changedOther, showNumbers;
 
     /**
      * Initialize the Scoreboard object.
@@ -46,6 +46,7 @@ public class Scoreboard {
         this.internalName = internalName;
         this.title = title;
         this.showNumbers = showNumbers;
+        created = false;
 
         for (int i = 0; i < 15; i++) entries[i] = new ScoreboardEntry(String.valueOf(i));
     }
@@ -93,12 +94,17 @@ public class Scoreboard {
      * an objective is registered multiple times.
      */
     public void create() {
+        if (created) return;
+
         user.sendPacket(new WrapperPlayServerScoreboardObjective(
                 internalName,
                 WrapperPlayServerScoreboardObjective.ObjectiveMode.CREATE,
                 Component.text(title),
                 null
         ));
+
+        changedTitle = false; // We just set the title while creating the scoreboard.
+        created = true;
     }
 
     /**
@@ -106,12 +112,16 @@ public class Scoreboard {
      * Avoid calling this unless the create void has already been called.
      */
     public void destroy() {
+        if (!created) return;
+
         user.sendPacket(new WrapperPlayServerScoreboardObjective(
                 internalName,
                 WrapperPlayServerScoreboardObjective.ObjectiveMode.REMOVE,
                 Component.text(title),
                 null
         ));
+
+        created = false;
 
         for (ScoreboardEntry entry : entries) {
             entry.setNameChanged(entry.getDisplayName() != null);
@@ -126,6 +136,8 @@ public class Scoreboard {
      * Some versions may require a line to be set to display.
      */
     public void display() {
+        if (!created) return;
+
         user.sendPacket(new WrapperPlayServerDisplayScoreboard(
                 1,
                 internalName
@@ -137,6 +149,8 @@ public class Scoreboard {
      * Don't be afraid to call this often, it will only send packets when required.
      */
     public void update() {
+        if (!created) return;
+
         /*
          * Important note:
          * We do not send any packets until the update has completed.

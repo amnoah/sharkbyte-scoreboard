@@ -90,8 +90,6 @@ public class Scoreboard {
 
     /**
      * Calling this method will register the scoreboard inside the client.
-     * Avoid calling this method multiple times without destroying the scoreboard as some versions will disconnect if
-     * an objective is registered multiple times.
      */
     public void create() {
         if (created) return;
@@ -109,7 +107,6 @@ public class Scoreboard {
 
     /**
      * Calling this method will unregister the scoreboard inside the client.
-     * Avoid calling this unless the create void has already been called.
      */
     public void destroy() {
         if (!created) return;
@@ -151,6 +148,8 @@ public class Scoreboard {
     public void update() {
         if (!created) return;
 
+        boolean updated = false;
+
         /*
          * Important note:
          * We do not send any packets until the update has completed.
@@ -178,11 +177,15 @@ public class Scoreboard {
                             Component.text(entry.getDisplayName()),
                             showNumbers ? null : ScoreFormat.fixedScore(Component.text(""))
                     ));
+
+                    updated = true;
                 // In 1.20.3 the ResetScore packet replaced the REMOVE action on the UpdateScore packet.
                 } else if (entry.hasNameChanged()) {
                     user.writePacket(new WrapperPlayServerResetScore(
                             entry.getIdentifyingName(), internalName
                     ));
+
+                    updated = true;
                 }
             // Here we support versions before the 1.20.3 UpdateScore rewrite.
             } else {
@@ -198,6 +201,8 @@ public class Scoreboard {
                             null,
                             null
                     ));
+
+                    updated = true;
                 }
 
                 // If displayName isn't null then it is a line that has to be added to the board.
@@ -210,6 +215,8 @@ public class Scoreboard {
                             null,
                             null
                     ));
+
+                    updated = true;
                 }
             }
 
@@ -224,9 +231,11 @@ public class Scoreboard {
                     Component.text(title),
                     null
             ));
+
+            updated = true;
         }
 
         // Finally, send all packets to the player!
-        user.flushPackets();
+        if (updated) user.flushPackets();
     }
 }

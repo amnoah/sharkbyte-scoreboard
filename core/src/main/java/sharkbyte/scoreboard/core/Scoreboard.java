@@ -17,7 +17,7 @@ import net.kyori.adventure.text.Component;
  *
  * @Author: am noah
  * @Since: 1.0.0
- * @Updated: 1.0.0
+ * @Updated: 1.0.2
  */
 public class Scoreboard {
 

@@ -8,7 +8,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
  *
  * @Author: am noah
  * @Since: 1.0.0
- * @Updated: 1.0.0
+ * @Updated: 1.0.1
  */
 public class ScoreboardEntry {
 

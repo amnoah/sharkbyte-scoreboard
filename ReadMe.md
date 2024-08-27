@@ -10,7 +10,7 @@ Features:
 - Unlimited characters on 1.18+.
 - 40-character limit on 1.8 - 1.17.2.
 - Simple and lightweight.
-- Can hide score numbers on 1.20.3+.
+- Can modify left-aligned and right-aligned text separately (1.20.3+).
 
 NOTE: This project will primarily be maintained for 1.20.3+. Versions beneath the UpdateScore packet rewrite may not
 receive support.

@@ -182,7 +182,8 @@ public class Scoreboard {
                 // In 1.20.3 the ResetScore packet replaced the REMOVE action on the UpdateScore packet.
                 } else if (entry.hasNameChanged()) {
                     user.writePacket(new WrapperPlayServerResetScore(
-                            entry.getIdentifyingName(), internalName
+                            entry.getIdentifyingName(),
+                            internalName
                     ));
 
                     updated = true;

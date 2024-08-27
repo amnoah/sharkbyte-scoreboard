@@ -61,8 +61,9 @@ public class ScoreboardEntry {
 
     /**
      * Manually set the identifying name.
+     * Currently package-private, may become public in the future.
      */
-    public void setIdentifyingName(String identifyingName) {
+    void setIdentifyingName(String identifyingName) {
         this.identifyingName = identifyingName;
     }
 
@@ -75,7 +76,7 @@ public class ScoreboardEntry {
     }
 
     /*
-     * Update the text in the board.
+     * Board Updaters.
      */
 
     /**

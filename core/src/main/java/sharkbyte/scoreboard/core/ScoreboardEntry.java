@@ -8,12 +8,12 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
  *
  * @Author: am noah
  * @Since: 1.0.0
- * @Updated: 1.0.1
+ * @Updated: 1.1.0
  */
 public class ScoreboardEntry {
 
     private boolean nameChanged = false;
-    private String identifyingName, displayName = null;
+    private String identifyingName, leftDisplayName = null, rightDisplayName = null;
 
     /**
      * Initialize the ScoreBoardEntry object.
@@ -28,13 +28,6 @@ public class ScoreboardEntry {
      */
 
     /**
-     * Return the current assigned display text for this line.
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
      * Return the current assigned identifying text for this line.
      */
     public String getIdentifyingName() {
@@ -42,7 +35,21 @@ public class ScoreboardEntry {
     }
 
     /**
-     * Return whether the text on this line has been changed.
+     * Return the current assigned left-aligned display text for this line.
+     */
+    public String getLeftDisplayName() {
+        return leftDisplayName;
+    }
+
+    /**
+     * Return the current assigned right-aligned display text for this line.
+     */
+    public String getRightDisplayName() {
+        return rightDisplayName;
+    }
+
+    /**
+     * Return whether any text on this line has been changed.
      */
     public boolean hasNameChanged() {
         return nameChanged;
@@ -61,8 +68,9 @@ public class ScoreboardEntry {
 
     /**
      * Manually force a line update.
+     * Currently package-private, may become public in the future.
      */
-    public void setNameChanged(boolean nameChanged) {
+    void setNameChanged(boolean nameChanged) {
         this.nameChanged = nameChanged;
     }
 
@@ -78,20 +86,34 @@ public class ScoreboardEntry {
     }
 
     /**
-     * This method update this line's display text to the given text.
+     * This method update this line's left-aligned text to the given text.
      */
-    public void updateDisplayName(String text) {
-        if (displayName != null && displayName.equals(text)) return;
+    public void updateLeftAlignedText(String text) {
+        if (leftDisplayName != null && leftDisplayName.equals(text)) return;
 
         /*
          * In 1.20.3+, the identifyingName string permanently directs us to this line.
          * In older versions, the previous display text directs us to this line.
          */
         if (!PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_3)) {
-            if (!nameChanged) identifyingName = displayName;
+            if (!nameChanged) identifyingName = leftDisplayName;
         }
 
-        displayName = text;
+        leftDisplayName = text;
+        nameChanged = true;
+    }
+
+    /**
+     * This method update this line's right-aligned text to the given text.
+     * This is only available in 1.20.3+.
+     */
+    public void updateRightAlignedText(String text) {
+        /*
+         * Because this is a 1.20.3+ feature we don't need all the extra legacy code.
+         */
+        if (rightDisplayName != null && rightDisplayName.equals(text)) return;
+
+        rightDisplayName = text;
         nameChanged = true;
     }
 }

@@ -17,7 +17,7 @@ import net.kyori.adventure.text.Component;
  *
  * @Author: am noah
  * @Since: 1.0.0
- * @Updated: 1.0.2
+ * @Updated: 1.1.0
  */
 public class Scoreboard {
 
@@ -26,7 +26,7 @@ public class Scoreboard {
 
     private final User user;
     private String title;
-    private boolean created, changedTitle, changedOther, showNumbers;
+    private boolean created, changedTitle;
 
     /**
      * Initialize the Scoreboard object.
@@ -45,7 +45,6 @@ public class Scoreboard {
         this.user = user;
         this.internalName = internalName;
         this.title = title;
-        this.showNumbers = showNumbers;
         created = false;
 
         for (int i = 0; i < 15; i++) entries[i] = new ScoreboardEntry(String.valueOf(i));
@@ -56,23 +55,22 @@ public class Scoreboard {
      */
 
     /**
-     * Sets the inputted line as the inputted text.
+     * Sets the left-aligned text for the given line to the given text.
      * Setting the value to null will remove the line from the scoreboard.
      * Valid indices: 0-14.
      * Keep in mind, 1.8 - 1.17.2 will only display 40 characters.
      */
-    public void setLine(int index, String line) {
-        entries[index].updateDisplayName(line);
+    public void setLeftAlignedText(int index, String text) {
+        entries[index].updateLeftAlignedText(text);
     }
 
     /**
-     * Set whether the score numbers should be shown alongside text.
-     * Only works on 1.20.3+.
+     * Sets the right-aligned text for the given line to the given text.
+     * Setting the value to null will remove the line from the scoreboard.
+     * Valid indices: 0-14.
      */
-    public void setShowNumbers(boolean showNumbers) {
-        if (this.showNumbers == showNumbers) return;
-        this.showNumbers = showNumbers;
-        changedOther = true;
+    public void setRightAlignedText(int index, String text) {
+        entries[index].updateRightAlignedText(text);
     }
 
     /**
@@ -121,7 +119,7 @@ public class Scoreboard {
         created = false;
 
         for (ScoreboardEntry entry : entries) {
-            entry.setNameChanged(entry.getDisplayName() != null);
+            entry.setNameChanged(entry.getLeftDisplayName() != null || entry.getRightDisplayName() != null);
             if (PacketEvents.getAPI().getServerManager().getVersion().isOlderThan(ServerVersion.V_1_20_3)) {
                 entry.setIdentifyingName(null);
             }
@@ -162,20 +160,22 @@ public class Scoreboard {
             // Because the UpdateScore packet was rewritten in 1.20.3, we have separate functionality for it.
             if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_3)) {
                 // We continue if the line has been modified or if the scoreboard is being modified.
-                if (!changedOther && !entry.hasNameChanged()) continue;
+                if (!entry.hasNameChanged()) continue;
 
                 /*
                  * If displayName is null, this line is intended to be removed from the scoreboard.
                  * If display is not null, this line is intended to be modified on the scoreboard.
                  */
-                if (entry.getDisplayName() != null) {
+                if (entry.getLeftDisplayName() != null || entry.getRightDisplayName() != null) {
+                    String left = entry.getLeftDisplayName(), right = entry.getRightDisplayName();
+
                     user.writePacket(new WrapperPlayServerUpdateScore(
                             entry.getIdentifyingName(),
                             WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
                             internalName,
                             15 - i,
-                            Component.text(entry.getDisplayName()),
-                            showNumbers ? null : ScoreFormat.fixedScore(Component.text(""))
+                            left == null ? Component.empty() : Component.text(left),
+                            ScoreFormat.fixedScore(right == null ? Component.empty() : Component.text(right))
                     ));
 
                     updated = true;
@@ -187,8 +187,8 @@ public class Scoreboard {
 
                     updated = true;
                 }
-            // Here we support versions before the 1.20.3 UpdateScore rewrite.
             } else {
+                // Here we support versions before the 1.20.3 UpdateScore rewrite.
                 if (!entry.hasNameChanged()) continue;
 
                 // If identifyingName isn't null then it is a line that has to be removed from the board.
@@ -206,9 +206,9 @@ public class Scoreboard {
                 }
 
                 // If displayName isn't null then it is a line that has to be added to the board.
-                if (entry.getDisplayName() != null) {
+                if (entry.getLeftDisplayName() != null) {
                     user.writePacket(new WrapperPlayServerUpdateScore(
-                            entry.getDisplayName(),
+                            entry.getLeftDisplayName(),
                             WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
                             internalName,
                             15 - i,

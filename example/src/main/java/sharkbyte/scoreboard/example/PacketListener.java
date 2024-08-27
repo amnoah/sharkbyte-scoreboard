@@ -11,7 +11,7 @@ import sharkbyte.scoreboard.core.Scoreboard;
  *
  * @Author: am noah
  * @Since: 1.0.0
- * @Updated: 1.0.0
+ * @Updated: 1.1.0
  */
 public class PacketListener extends SimplePacketListenerAbstract {
 
@@ -27,14 +27,14 @@ public class PacketListener extends SimplePacketListenerAbstract {
 
         WrapperPlayClientChatMessage message = new WrapperPlayClientChatMessage(event);
 
-        String[] elements = message.getMessage().split(" ", 2);
+        String[] elements = message.getMessage().split(" ", 3);
         int index;
 
         switch (elements[0]) {
             case "create":
                 scoreboard.create();
                 scoreboard.display();
-                scoreboard.setLine(0, "hello world!");
+                scoreboard.setLeftAlignedText(0, "hello world!");
                 scoreboard.update();
                 break;
             case "title":
@@ -44,16 +44,30 @@ public class PacketListener extends SimplePacketListenerAbstract {
             case "destroy":
                 scoreboard.destroy();
                 break;
-            default:
+            case "left":
                 try {
-                    index = Integer.parseInt(elements[0]);
+                    index = Integer.parseInt(elements[1]);
                 } catch (Exception e) {
                     index = 0;
                 }
 
-                if (elements[1].equals("null")) scoreboard.setLine(index, null);
-                else scoreboard.setLine(index, elements[1]);
+                if (elements[2].equals("null")) scoreboard.setLeftAlignedText(index, null);
+                else scoreboard.setLeftAlignedText(index, elements[2]);
                 scoreboard.update();
+
+                break;
+            case "right":
+                try {
+                    index = Integer.parseInt(elements[1]);
+                } catch (Exception e) {
+                    index = 0;
+                }
+
+                if (elements[2].equals("null")) scoreboard.setRightAlignedText(index, null);
+                else scoreboard.setRightAlignedText(index, elements[2]);
+                scoreboard.update();
+
+                break;
         }
     }
 }

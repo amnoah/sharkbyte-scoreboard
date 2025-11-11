@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
-            <version>2.5.0</version>
+            <version>2.10.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -38,9 +38,15 @@
             <version>1.21-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.amnoah</groupId>-->
+<!--            <artifactId>sharkbyte-scoreboard</artifactId>-->
+<!--            <version>1.1.1</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>com.github.amnoah</groupId>
-            <artifactId>sharkbyte-scoreboard</artifactId>
+            <groupId>shark.byte</groupId>
+            <artifactId>core</artifactId>
             <version>1.1.1</version>
             <scope>compile</scope>
         </dependency>

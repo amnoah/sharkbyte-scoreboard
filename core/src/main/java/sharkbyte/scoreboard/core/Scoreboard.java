@@ -4,11 +4,9 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.score.ScoreFormat;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisplayScoreboard;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerResetScore;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
+import com.github.retrooper.packetevents.wrapper.play.server.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
  * This class represents and handles a scoreboard for a user.
@@ -33,7 +31,7 @@ public class Scoreboard {
      * The internalName should be up to 16 characters in 1.8-1.17.2, or unlimited length in 1.18+.
      */
     public Scoreboard(User user, String internalName) {
-        this(user, internalName, "", false);
+        this(user, internalName, "");
     }
 
     /**
@@ -41,12 +39,13 @@ public class Scoreboard {
      * The internalName should be up to 16 characters in 1.8-1.17.2, or unlimited length in 1.18+.
      * The showNumbers setting only has functionality in 1.20.3+.
      */
-    public Scoreboard(User user, String internalName, String title, boolean showNumbers) {
+    public Scoreboard(User user, String internalName, String title) {
         this.user = user;
         this.internalName = internalName;
         this.title = title;
         created = false;
 
+        // We can have a maximum of 15 lines. Even if we don't actively use each line, we keep its object.
         for (int i = 0; i < 15; i++) entries[i] = new ScoreboardEntry(String.valueOf(i));
     }
 
@@ -92,12 +91,33 @@ public class Scoreboard {
     public void create() {
         if (created) return;
 
-        user.sendPacket(new WrapperPlayServerScoreboardObjective(
+        user.writePacket(new WrapperPlayServerScoreboardObjective(
                 internalName,
                 WrapperPlayServerScoreboardObjective.ObjectiveMode.CREATE,
                 Component.text(title),
                 null
         ));
+
+        if (PacketEvents.getAPI().getServerManager().getVersion().isOlderThan(ServerVersion.V_1_20_3)) {
+            for (int i = 0; i < 15; i++) {
+                user.writePacket(new WrapperPlayServerTeams(
+                        (internalName + (15 - i)),
+                        WrapperPlayServerTeams.TeamMode.CREATE,
+                        new WrapperPlayServerTeams.ScoreBoardTeamInfo(
+                                Component.text("Display" + (15 - i)),
+                                Component.text(""),
+                                Component.text(""),
+                                // Dummy data from here down.
+                                WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
+                                WrapperPlayServerTeams.CollisionRule.ALWAYS,
+                                NamedTextColor.BLACK,
+                                WrapperPlayServerTeams.OptionData.ALL
+                        )
+                ));
+            }
+        }
+
+        user.flushPackets();
 
         changedTitle = false; // We just set the title while creating the scoreboard.
         created = true;
@@ -109,12 +129,24 @@ public class Scoreboard {
     public void destroy() {
         if (!created) return;
 
-        user.sendPacket(new WrapperPlayServerScoreboardObjective(
+        user.writePacket(new WrapperPlayServerScoreboardObjective(
                 internalName,
                 WrapperPlayServerScoreboardObjective.ObjectiveMode.REMOVE,
                 Component.text(title),
                 null
         ));
+
+        if (PacketEvents.getAPI().getServerManager().getVersion().isOlderThan(ServerVersion.V_1_20_3)) {
+            for (int i = 0; i < 15; i++) {
+                user.writePacket(new WrapperPlayServerTeams(
+                        (internalName + (15 - i)),
+                        WrapperPlayServerTeams.TeamMode.REMOVE,
+                        (WrapperPlayServerTeams.ScoreBoardTeamInfo) null
+                ));
+            }
+        }
+
+        user.flushPackets();
 
         created = false;
 
@@ -194,8 +226,18 @@ public class Scoreboard {
 
                 // If identifyingName isn't null then it is a line that has to be removed from the board.
                 if (entry.getIdentifyingName() != null) {
+                    boolean usedTeam = entry.getIdentifyingName().length() > 40;
+                    String main;
+
+                    if (!usedTeam) main = entry.getIdentifyingName();
+                    else if (entry.getIdentifyingName().length() < 56) {
+                        main = entry.getIdentifyingName().substring(56 - entry.getIdentifyingName().length());
+                    } else {
+                        main = entry.getIdentifyingName().substring(16, 56);
+                    }
+
                     user.writePacket(new WrapperPlayServerUpdateScore(
-                            entry.getIdentifyingName(),
+                            main,
                             WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
                             internalName,
                             15 - i,
@@ -203,13 +245,80 @@ public class Scoreboard {
                             null
                     ));
 
+                    if (usedTeam) {
+                        if (entry.getLeftDisplayName() == null || (entry.getLeftDisplayName() != null && entry.getLeftDisplayName().length() <= 40)) {
+                            user.writePacket(new WrapperPlayServerTeams(
+                                    (internalName + (15 - i)),
+                                    WrapperPlayServerTeams.TeamMode.UPDATE,
+                                    new WrapperPlayServerTeams.ScoreBoardTeamInfo(
+                                            Component.text("Display" + (15 - i)),
+                                            Component.text(""),
+                                            Component.text(""),
+                                            // Dummy data from here down.
+                                            WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
+                                            WrapperPlayServerTeams.CollisionRule.ALWAYS,
+                                            NamedTextColor.BLACK,
+                                            WrapperPlayServerTeams.OptionData.ALL
+                                    )
+                            ));
+                        }
+
+                        user.writePacket(new WrapperPlayServerTeams(
+                                (internalName + (15 - i)),
+                                WrapperPlayServerTeams.TeamMode.REMOVE_ENTITIES,
+                                (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
+                                main
+                        ));
+                    }
+
                     updated = true;
                 }
 
                 // If displayName isn't null then it is a line that has to be added to the board.
                 if (entry.getLeftDisplayName() != null) {
+                    String prefix = "", main, suffix = "";
+
+                    if (entry.getLeftDisplayName().length() <= 40) {
+                        main = entry.getLeftDisplayName();
+                    } else if (entry.getLeftDisplayName().length() <= 56) {
+                        prefix = entry.getLeftDisplayName().substring(0, 56 - entry.getLeftDisplayName().length());
+                        main = entry.getLeftDisplayName().substring(56 - entry.getLeftDisplayName().length());
+                    } else {
+                        prefix = entry.getLeftDisplayName().substring(0, 16);
+                        main = entry.getLeftDisplayName().substring(16, 56);
+                        suffix = entry.getLeftDisplayName().substring(56);
+                    }
+
+                    System.out.println(prefix.length() + " prefix: " + prefix);
+                    System.out.println(main.length() + " main: " + main);
+                    System.out.println(suffix.length() + " suffix: " + suffix);
+
+                    if (!prefix.isEmpty()) {
+                        user.writePacket(new WrapperPlayServerTeams(
+                                (internalName + (15 - i)),
+                                WrapperPlayServerTeams.TeamMode.UPDATE,
+                                new WrapperPlayServerTeams.ScoreBoardTeamInfo(
+                                        Component.text("Display" + (15 - i)),
+                                        Component.text(prefix),
+                                        Component.text(suffix),
+                                        // Dummy data from here down.
+                                        WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
+                                        WrapperPlayServerTeams.CollisionRule.ALWAYS,
+                                        NamedTextColor.BLACK,
+                                        WrapperPlayServerTeams.OptionData.ALL
+                                )
+                        ));
+
+                        user.writePacket(new WrapperPlayServerTeams(
+                                (internalName + (15 - i)),
+                                WrapperPlayServerTeams.TeamMode.ADD_ENTITIES,
+                                (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
+                                main
+                        ));
+                    }
+
                     user.writePacket(new WrapperPlayServerUpdateScore(
-                            entry.getLeftDisplayName(),
+                            main,
                             WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
                             internalName,
                             15 - i,

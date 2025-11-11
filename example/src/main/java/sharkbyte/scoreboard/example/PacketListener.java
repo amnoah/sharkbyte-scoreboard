@@ -4,6 +4,12 @@ import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract;
 import com.github.retrooper.packetevents.event.simple.PacketPlayReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientChatMessage;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisplayScoreboard;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import sharkbyte.scoreboard.core.Scoreboard;
 
 /**
@@ -22,7 +28,7 @@ public class PacketListener extends SimplePacketListenerAbstract {
         if (!event.getPacketType().equals(PacketType.Play.Client.CHAT_MESSAGE)) return;
 
         if (scoreboard == null) {
-            scoreboard = new Scoreboard(event.getUser(), "scoreboard", "test", true);
+            scoreboard = new Scoreboard(event.getUser(), "scoreboard", "test");
         }
 
         WrapperPlayClientChatMessage message = new WrapperPlayClientChatMessage(event);
@@ -38,7 +44,7 @@ public class PacketListener extends SimplePacketListenerAbstract {
                 scoreboard.update();
                 break;
             case "title":
-                scoreboard.setTitle(elements[1]);
+                scoreboard.setTitle(elements.length == 2 ? elements[1] : elements[1] + " " + elements[2]);
                 scoreboard.update();
                 break;
             case "destroy":

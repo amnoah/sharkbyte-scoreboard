@@ -12,6 +12,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import sharkbyte.scoreboard.core.SBScoreboard;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
+import sharkbyte.scoreboard.core.modern.ModernScoreboardEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,9 @@ public class LegacyScoreboard extends SBScoreboard {
     public LegacyScoreboard(User user, String internalName, String title) {
         super(user, internalName, title);
         if (!eighteen) super.internalName = internalName.length() > 16 ? internalName.substring(0, 16) : internalName;
+
+        // We can have a maximum of 15 lines. Even if we don't actively use each line, we keep its object.
+        for (int i = 0; i < 15; i++) entries[i] = new LegacyScoreboardEntry();
     }
 
     /*

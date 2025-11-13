@@ -470,6 +470,7 @@ public class LegacyScoreboard extends SBScoreboard {
                         formattingCodes.add(code);
                     } else if (COLOR_CODES.contains(code)) {
                         colorCode = code;
+                        formattingCodes.clear();
                     }
                 }
             }
@@ -485,6 +486,7 @@ public class LegacyScoreboard extends SBScoreboard {
                     formattingCodes.add(code);
                 } else if (COLOR_CODES.contains(code)) {
                     colorCode = code;
+                    formattingCodes.clear();
                 } else shrink = false;
             }
         }
@@ -499,9 +501,11 @@ public class LegacyScoreboard extends SBScoreboard {
         // If there are less than 5 formatting options, &r will be repeated.
         StringBuilder uniqueMain = new StringBuilder(unique + "§r");
         for (int i = 0; i < 5 - formattingCodes.size(); i++) uniqueMain.append("§r");
-        for (String format : formattingCodes) uniqueMain.append(format);
         uniqueMain.append(colorCode);
+        for (String format : formattingCodes) uniqueMain.append(format);
         uniqueMain.append(main);
+
+        user.sendMessage(uniqueMain.toString().replaceAll("§", "&"));
 
         return new String[]{prefix, uniqueMain.toString(), suffix};
     }

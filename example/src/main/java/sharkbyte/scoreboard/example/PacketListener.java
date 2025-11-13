@@ -4,13 +4,8 @@ import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract;
 import com.github.retrooper.packetevents.event.simple.PacketPlayReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientChatMessage;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisplayScoreboard;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateScore;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import sharkbyte.scoreboard.core.Scoreboard;
+import org.bukkit.ChatColor;
+import sharkbyte.scoreboard.core.SBScoreboard;
 
 /**
  * This class shows basic usage of the Scoreboard.
@@ -21,14 +16,14 @@ import sharkbyte.scoreboard.core.Scoreboard;
  */
 public class PacketListener extends SimplePacketListenerAbstract {
 
-    private Scoreboard scoreboard;
+    private SBScoreboard scoreboard;
 
     @Override
     public void onPacketPlayReceive(PacketPlayReceiveEvent event) {
         if (!event.getPacketType().equals(PacketType.Play.Client.CHAT_MESSAGE)) return;
 
         if (scoreboard == null) {
-            scoreboard = new Scoreboard(event.getUser(), "scoreboard", "test");
+            scoreboard = SBScoreboard.createScoreboard(event.getUser(), "scoreboard", "test");
         }
 
         WrapperPlayClientChatMessage message = new WrapperPlayClientChatMessage(event);
@@ -44,7 +39,7 @@ public class PacketListener extends SimplePacketListenerAbstract {
                 scoreboard.update();
                 break;
             case "title":
-                scoreboard.setTitle(elements.length == 2 ? elements[1] : elements[1] + " " + elements[2]);
+                scoreboard.setTitle(elements.length == 2 ? ChatColor.translateAlternateColorCodes('&', elements[1]) : ChatColor.translateAlternateColorCodes('&', elements[1] + " " + elements[2]));
                 scoreboard.update();
                 break;
             case "destroy":
@@ -58,7 +53,7 @@ public class PacketListener extends SimplePacketListenerAbstract {
                 }
 
                 if (elements[2].equals("null")) scoreboard.setLeftAlignedText(index, null);
-                else scoreboard.setLeftAlignedText(index, elements[2]);
+                else scoreboard.setLeftAlignedText(index, ChatColor.translateAlternateColorCodes('&', elements[2]));
                 scoreboard.update();
 
                 break;
@@ -70,7 +65,7 @@ public class PacketListener extends SimplePacketListenerAbstract {
                 }
 
                 if (elements[2].equals("null")) scoreboard.setRightAlignedText(index, null);
-                else scoreboard.setRightAlignedText(index, elements[2]);
+                else scoreboard.setRightAlignedText(index, ChatColor.translateAlternateColorCodes('&', elements[2]));
                 scoreboard.update();
 
                 break;

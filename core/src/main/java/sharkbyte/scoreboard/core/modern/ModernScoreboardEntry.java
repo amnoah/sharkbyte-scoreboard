@@ -1,16 +1,10 @@
-package sharkbyte.scoreboard.core;
+package sharkbyte.scoreboard.core.modern;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import sharkbyte.scoreboard.core.SBScoreboardEntry;
 
-/**
- * This class represents an individual line on a scoreboard.
- *
- * @Author: am noah
- * @Since: 1.0.0
- * @Updated: 1.1.0
- */
-public class ScoreboardEntry {
+public class ModernScoreboardEntry implements SBScoreboardEntry {
 
     private boolean nameChanged = false;
     private String identifyingName, leftDisplayName = null, rightDisplayName = null;
@@ -19,7 +13,7 @@ public class ScoreboardEntry {
      * Initialize the ScoreBoardEntry object.
      * The identifyingName string only matters on 1.20.3+. It can be any value on other versions.
      */
-    public ScoreboardEntry(String identifyingName) {
+    public ModernScoreboardEntry(String identifyingName) {
         this.identifyingName = identifyingName;
     }
 
@@ -55,23 +49,20 @@ public class ScoreboardEntry {
         return nameChanged;
     }
 
+    @Override
+    public void setIdentifyingName(String identifyingName) {
+
+    }
+
     /*
      * Setters.
      */
 
     /**
-     * Manually set the identifying name.
-     * Currently package-private, may become public in the future.
-     */
-    void setIdentifyingName(String identifyingName) {
-        this.identifyingName = identifyingName;
-    }
-
-    /**
      * Manually force a line update.
      * Currently package-private, may become public in the future.
      */
-    void setNameChanged(boolean nameChanged) {
+    public void setNameChanged(boolean nameChanged) {
         this.nameChanged = nameChanged;
     }
 
@@ -91,29 +82,15 @@ public class ScoreboardEntry {
      */
     public void updateLeftAlignedText(String text) {
         if (leftDisplayName != null && leftDisplayName.equals(text)) return;
-
-        /*
-         * In 1.20.3+, the identifyingName string permanently directs us to this line.
-         * In older versions, the previous display text directs us to this line.
-         */
-        if (!PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_3)) {
-            if (!nameChanged) identifyingName = leftDisplayName;
-        }
-
         leftDisplayName = text;
         nameChanged = true;
     }
 
     /**
      * This method update this line's right-aligned text to the given text.
-     * This is only available in 1.20.3+.
      */
     public void updateRightAlignedText(String text) {
-        /*
-         * Because this is a 1.20.3+ feature we don't need all the extra legacy code.
-         */
         if (rightDisplayName != null && rightDisplayName.equals(text)) return;
-
         rightDisplayName = text;
         nameChanged = true;
     }

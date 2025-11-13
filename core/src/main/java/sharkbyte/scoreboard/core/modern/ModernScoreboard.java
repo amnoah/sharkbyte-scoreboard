@@ -6,7 +6,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.*;
 import net.kyori.adventure.text.Component;
 import sharkbyte.scoreboard.core.SBScoreboard;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
-import sharkbyte.scoreboard.core.ScoreboardEntry;
 
 /**
  * This class represents and handles a scoreboard for a user on a 1.20.3+ server.

@@ -12,7 +12,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import sharkbyte.scoreboard.core.SBScoreboard;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
-import sharkbyte.scoreboard.core.ScoreboardEntry;
 import sharkbyte.scoreboard.core.modern.ModernScoreboardEntry;
 
 public class Legacy13Scoreboard extends SBScoreboard {

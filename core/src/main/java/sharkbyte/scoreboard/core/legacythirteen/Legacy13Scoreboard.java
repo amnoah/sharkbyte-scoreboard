@@ -102,7 +102,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
                             // Dummy data from here down.
                             WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
                             WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                            NamedTextColor.BLACK,
+                            NamedTextColor.WHITE,
                             WrapperPlayServerTeams.OptionData.ALL
                     )
             ));
@@ -181,6 +181,8 @@ public class Legacy13Scoreboard extends SBScoreboard {
 
             if (!entry.hasNameChanged()) continue;
 
+
+
             if (entry.getLeftDisplayName() != null) {
                 if (entry.getIdentifyingName() == null) {
                     user.writePacket(new WrapperPlayServerUpdateScore(
@@ -205,12 +207,11 @@ public class Legacy13Scoreboard extends SBScoreboard {
                                 // Dummy data from here down.
                                 WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
                                 WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                                NamedTextColor.BLACK,
+                                NamedTextColor.WHITE,
                                 WrapperPlayServerTeams.OptionData.ALL
                         )
                 ));
 
-                updated = true;
             } else {
                 if (entry.getIdentifyingName() == null) continue;
 
@@ -223,8 +224,8 @@ public class Legacy13Scoreboard extends SBScoreboard {
                         null
                 ));
                 entry.setIdentifyingName(null);
-                updated = true;
             }
+            updated = true;
 
             entry.update();
         }

@@ -113,7 +113,7 @@ public class LegacyScoreboard extends SBScoreboard {
                             // Dummy data from here down.
                             WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
                             WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                            NamedTextColor.BLACK,
+                            NamedTextColor.WHITE,
                             WrapperPlayServerTeams.OptionData.ALL
                     )
             ));
@@ -237,7 +237,7 @@ public class LegacyScoreboard extends SBScoreboard {
                                         // Dummy data from here down.
                                         WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
                                         WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                                        NamedTextColor.BLACK,
+                                        NamedTextColor.WHITE,
                                         WrapperPlayServerTeams.OptionData.ALL
                                 )
                         ));
@@ -273,7 +273,7 @@ public class LegacyScoreboard extends SBScoreboard {
                                     // Dummy data from here down.
                                     WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
                                     WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                                    NamedTextColor.BLACK,
+                                    NamedTextColor.WHITE,
                                     WrapperPlayServerTeams.OptionData.ALL
                             )
                     ));

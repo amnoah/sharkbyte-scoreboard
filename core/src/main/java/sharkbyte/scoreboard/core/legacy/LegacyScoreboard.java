@@ -33,6 +33,8 @@ public class LegacyScoreboard extends SBScoreboard {
             "§k", "§l", "§m", "§n", "§o"
     );
 
+    private boolean dangerMode = false;
+
     /**
      * Initialize the LegacyScoreboard object.
      * The internalName can be up to 16 characters.
@@ -58,6 +60,11 @@ public class LegacyScoreboard extends SBScoreboard {
      * Setters.
      */
 
+    public void setDangerMode(boolean dangerMode) {
+        this.dangerMode = dangerMode;
+        for (SBScoreboardEntry entry : entries) ((LegacyScoreboardEntry) entry).setDangerMode(dangerMode);
+    }
+
     /**
      * This will only display up to 56 characters. All others will be removed.
      * Sets the left-aligned text for the given line to the given text.
@@ -67,8 +74,7 @@ public class LegacyScoreboard extends SBScoreboard {
     @Override
     public void setLeftAlignedText(int index, String text) {
         // Ensure we do not exceed the maximum legacy character support.
-        if (text != null && text.length() > 58) text = text.substring(0, 58);
-        //if (text != null && text.length() > 56) text = text.substring(0, 56);
+        if (text != null && text.length() > (dangerMode ? 72 : 58)) text = text.substring(0, (dangerMode ? 72 : 58));
         super.setLeftAlignedText(index, text);
     }
 

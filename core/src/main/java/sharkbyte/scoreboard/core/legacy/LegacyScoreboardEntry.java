@@ -1,7 +1,5 @@
 package sharkbyte.scoreboard.core.legacy;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
 
 import java.util.ArrayList;
@@ -10,6 +8,7 @@ import java.util.List;
 public class LegacyScoreboardEntry implements SBScoreboardEntry {
 
     private final String color;
+    private boolean dangerMode = false;
 
     private boolean nameChanged = false;
     private String identifyingName = null, leftDisplayName = null;
@@ -53,6 +52,16 @@ public class LegacyScoreboardEntry implements SBScoreboardEntry {
     /*
      * Setters.
      */
+
+    /**
+     * Set the danger mode status.
+     * If danger mode is true, headers will not be included - gaining 14 characters for usage. The problem arises by the
+     * fact that our headers protect against duplicate lines being created, and if there are duplicate lines one will be
+     * removed.
+     */
+    public void setDangerMode(boolean dangerMode) {
+        this.dangerMode = dangerMode;
+    }
 
     /**
      * Manually set the identifying name.
@@ -120,6 +129,7 @@ public class LegacyScoreboardEntry implements SBScoreboardEntry {
 
     private String modifyString(String entry) {
         if (entry == null) return null;
+        if (dangerMode) return entry;
 
         StringBuilder finalString = new StringBuilder();
         String prefix = null, main;

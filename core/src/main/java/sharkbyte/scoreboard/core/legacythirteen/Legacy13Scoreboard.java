@@ -181,8 +181,6 @@ public class Legacy13Scoreboard extends SBScoreboard {
 
             if (!entry.hasNameChanged()) continue;
 
-
-
             if (entry.getLeftDisplayName() != null) {
                 if (entry.getIdentifyingName() == null) {
                     user.writePacket(new WrapperPlayServerUpdateScore(
@@ -213,8 +211,6 @@ public class Legacy13Scoreboard extends SBScoreboard {
                 ));
 
             } else {
-                if (entry.getIdentifyingName() == null) continue;
-
                 user.writePacket(new WrapperPlayServerUpdateScore(
                         COLOR_CODES[i],
                         WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
@@ -225,8 +221,8 @@ public class Legacy13Scoreboard extends SBScoreboard {
                 ));
                 entry.setIdentifyingName(null);
             }
-            updated = true;
 
+            updated = true;
             entry.update();
         }
 

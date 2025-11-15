@@ -4,10 +4,19 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LegacyScoreboardEntry implements SBScoreboardEntry {
+
+    private final String color;
 
     private boolean nameChanged = false;
     private String identifyingName = null, leftDisplayName = null;
+
+    public LegacyScoreboardEntry(String color) {
+        this.color = color;
+    }
 
     /*
      * Getters.
@@ -50,7 +59,7 @@ public class LegacyScoreboardEntry implements SBScoreboardEntry {
      * Currently package-private, may become public in the future.
      */
     public void setIdentifyingName(String identifyingName) {
-        this.identifyingName = identifyingName;
+        this.identifyingName = modifyString(identifyingName);
     }
 
     /**
@@ -96,7 +105,7 @@ public class LegacyScoreboardEntry implements SBScoreboardEntry {
          */
         if (!nameChanged) identifyingName = leftDisplayName;
 
-        leftDisplayName = text;
+        leftDisplayName = modifyString(text);
         nameChanged = true;
     }
 
@@ -104,4 +113,74 @@ public class LegacyScoreboardEntry implements SBScoreboardEntry {
      * This method will do nothing for legacy clients.
      */
     public void updateRightAlignedText(String text) {}
+
+    /*
+     * Other functions
+     */
+
+    private String modifyString(String entry) {
+        if (entry == null) return null;
+
+        StringBuilder finalString = new StringBuilder();
+        String prefix = null, main;
+
+        if (entry.length() <= 26) main = entry;
+        else {
+            prefix = entry.substring(0, 16);
+            main = entry.substring(16);
+        }
+
+        String colorCode = "§f";
+        List<String> formattingCodes = new ArrayList<>();
+        boolean shrink = false;
+
+        if (prefix != null) {
+            char[] prefixChars = prefix.toCharArray();
+            for (int i = 0; i < prefixChars.length - 1; i++) {
+                if (prefixChars[i] == '§') {
+                    String code = "§" + prefixChars[i + 1];
+                    if (code.equals(LegacyScoreboard.RESET_CODE)) {
+                        formattingCodes.clear();
+                        colorCode = "§f";
+                    } else if (LegacyScoreboard.FORMATTING_CODES.contains(code)) {
+                        formattingCodes.remove(code);
+                        formattingCodes.add(code);
+                    } else if (LegacyScoreboard.COLOR_CODES.contains(code)) {
+                        colorCode = code;
+                        formattingCodes.clear();
+                    }
+                }
+            }
+
+            if (prefix.charAt(prefix.length() - 1) == '§') {
+                String code = "§" + main.charAt(0);
+                shrink = true;
+                if (code.equals(LegacyScoreboard.RESET_CODE)) {
+                    formattingCodes.clear();
+                    colorCode = "§f";
+                } else if (LegacyScoreboard.FORMATTING_CODES.contains(code)) {
+                    formattingCodes.remove(code);
+                    formattingCodes.add(code);
+                } else if (LegacyScoreboard.COLOR_CODES.contains(code)) {
+                    colorCode = code;
+                    formattingCodes.clear();
+                } else shrink = false;
+            }
+        }
+
+        if (shrink) {
+            prefix = prefix.substring(0, 15);
+            if (main.length() == 1) main = "";
+            else main = main.substring(0, main.length() - 1);
+        }
+
+        if (prefix != null) finalString.append(prefix);
+        finalString.append(color);//.append(LegacyScoreboard.RESET_CODE);
+        for (int i = 0; i < 5 - formattingCodes.size(); i++) finalString.append(LegacyScoreboard.RESET_CODE);
+        finalString.append(colorCode);
+        for (String format : formattingCodes) finalString.append(format);
+        finalString.append(main);
+
+        return finalString.toString();
+    }
 }

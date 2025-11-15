@@ -1,7 +1,5 @@
 package sharkbyte.scoreboard.core.legacy;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisplayScoreboard;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerScoreboardObjective;
@@ -12,15 +10,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import sharkbyte.scoreboard.core.SBScoreboard;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
-import sharkbyte.scoreboard.core.modern.ModernScoreboardEntry;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class represents and handles a scoreboard for a user on a 1.8 - 1.20.2 server.
- * Due to the inefficiency of legacy versions, many packets are required to be sent for minimal
+ * This class represents and handles a scoreboard for a user on a 1.8 - 1.12.2 server.
+ * Due to the inefficiency of legacy versions, many packets are required to be sent for minimal changes.
  *
  * @Author: am noah
  * @Since: 2.0.0
@@ -28,22 +24,18 @@ import java.util.List;
  */
 public class LegacyScoreboard extends SBScoreboard {
 
-    private final static String RESET_CODE = "§r";
-    private final static List<String> COLOR_CODES = Arrays.asList(
+    public final static String RESET_CODE = "§r";
+    public final static List<String> COLOR_CODES = Arrays.asList(
             "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9",
             "§a", "§b", "§c", "§d", "§e", "§f"
     );
-    private final static List<String> FORMATTING_CODES = Arrays.asList(
+    public final static List<String> FORMATTING_CODES = Arrays.asList(
             "§k", "§l", "§m", "§n", "§o"
     );
 
-    private final boolean thirteen = PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_13);
-    private final boolean eighteen = PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_18);
-    private boolean dangerMode = false;
-
     /**
      * Initialize the LegacyScoreboard object.
-     * The internalName can be up to 16 characters on [1.8, 1.18).
+     * The internalName can be up to 16 characters.
      */
     public LegacyScoreboard(User user, String internalName) {
         this(user, internalName, "");
@@ -51,15 +43,15 @@ public class LegacyScoreboard extends SBScoreboard {
 
     /**
      * Initialize the LegacyScoreboard object.
-     * The internalName can be up to 16 characters on [1.8, 1.18), and unlimited on [1.18, 1.20.2].
-     * The title can be up to 32 characters on [1.8, 1.13), and unlimited on [1.13, 1.20.2].
+     * The internalName can be up to 16 characters.
+     * The title can be up to 32 characters.
      */
     public LegacyScoreboard(User user, String internalName, String title) {
         super(user, internalName, title);
-        if (!eighteen) super.internalName = internalName.length() > 16 ? internalName.substring(0, 16) : internalName;
+        super.internalName = internalName.length() > 16 ? internalName.substring(0, 16) : internalName;
 
         // We can have a maximum of 15 lines. Even if we don't actively use each line, we keep its object.
-        for (int i = 0; i < 15; i++) entries[i] = new LegacyScoreboardEntry();
+        for (int i = 0; i < 15; i++) entries[i] = new LegacyScoreboardEntry(COLOR_CODES.get(i));
     }
 
     /*
@@ -67,19 +59,7 @@ public class LegacyScoreboard extends SBScoreboard {
      */
 
     /**
-     * In the versions [1.8, 1.13), the client has a theoretical maximum display length of 72 characters. 40 of these
-     * characters refer to a player's name, which unfortunately has the limitation that only one of each player can
-     * exist on the board. We get around this by hiding color codes in the player name to differentiate them, but this
-     * reserves 16 characters - leaving 56 for actual usage. By setting danger mode to true, you disable this reserving
-     * process - gaining you 16 extra characters per line but requiring you to make sure no lines have identical
-     * content.
-     */
-    public void setDangerMode(boolean dangerMode) {
-        this.dangerMode = dangerMode;
-    }
-
-    /**
-     * This will only display up to 72 characters. All others will be removed.
+     * This will only display up to 56 characters. All others will be removed.
      * Sets the left-aligned text for the given line to the given text.
      * Setting the value to null will remove the line from the scoreboard.
      * Valid indices: 0-14.
@@ -87,29 +67,23 @@ public class LegacyScoreboard extends SBScoreboard {
     @Override
     public void setLeftAlignedText(int index, String text) {
         // Ensure we do not exceed the maximum legacy character support.
-        if (text != null && text.length() > 72) text = text.substring(0, 72);
+        if (text != null && text.length() > 58) text = text.substring(0, 58);
+        //if (text != null && text.length() > 56) text = text.substring(0, 56);
         super.setLeftAlignedText(index, text);
     }
 
     /**
-     * This will only display up to 32 characters on [1.8, 1.13). All others will be removed.
+     * This will only display up to 32 characters, all others will be removed.
      * Set the scoreboard's title.
      */
     @Override
     public void setTitle(@NotNull String title) {
-        if (!thirteen && title.length() > 32) title = title.substring(0, 32);
+        if (title.length() > 32) title = title.substring(0, 32);
         super.setTitle(title);
     }
 
     /*
      * Scoreboard Handlers.
-     * TODO: Handle 1.18 unlimited characters
-     * TODO: Reserve 4 (maybe 2?) characters on player names to make hidden color codes to differentiate them.
-     * Notes:
-     * - Internal Name became unlimited in 1.18
-     * - Title became unlimited in 1.13
-     * - Player names on score became unlimited in 1.18
-     * - Team prefix/suffix became unlimited in 1.13
      */
 
     /**
@@ -126,6 +100,8 @@ public class LegacyScoreboard extends SBScoreboard {
                 null
         ));
 
+        // Register teams for usage in displays.
+        // We use the prefix/suffix options to display extra content.
         for (int i = 0; i < 15; i++) {
             user.writePacket(new WrapperPlayServerTeams(
                     (internalName + (15 - i)),
@@ -163,6 +139,7 @@ public class LegacyScoreboard extends SBScoreboard {
                 null
         ));
 
+        // Also remove all the teams we created.
         for (int i = 0; i < 15; i++) {
             user.writePacket(new WrapperPlayServerTeams(
                     (internalName + (15 - i)),
@@ -198,15 +175,31 @@ public class LegacyScoreboard extends SBScoreboard {
         ));
     }
 
+    /**
+     * Calling this method will send out all appropriate packets to update the client's scoreboard.
+     * Don't be afraid to call this often, it is highly optimized to only send packets when necessary.
+     */
     @Override
     public void update() {
         if (!created) return;
 
-        if (dangerMode) updateDangerous();
-        else updateSafe();
-    }
+        /*
+         * 1.8-1.12.2 has some really interesting scoreboard mechanics.
+         *
+         * On a display, for each line there are 3 noteworthy things:
+         * Team Prefix: 16 characters, placed before a player's name.
+         * Player Name: 40 characters, cannot have duplicates.
+         * Team Suffix: 16 characters, placed after a player's name.
+         *
+         * Theoretically, we could have 72 characters by manipulating a combinations of these - but to ensure we
+         * automate things as much as possible, sharkbyte-scoreboard automatically adds unique identifiers to ensure
+         * no duplicate lines can happen. These utilize color codes, which are invisible to the end client.
+         *
+         * These identifiers work like this:
+         * Unique color code: Each line has a separate color code that only it can have. No 2 lines can be the same.
+         * Reset code: Resets formatting to ensure
+         */
 
-    private void updateDangerous() {
         boolean updated = false;
 
         for (int i = 0; i < 15; i++) {
@@ -217,131 +210,8 @@ public class LegacyScoreboard extends SBScoreboard {
 
             // If identifyingName isn't null then it is a line that has to be removed from the board.
             if (entry.getIdentifyingName() != null) {
-                String main;
-                if (entry.getIdentifyingName().length() <= 40) main = entry.getIdentifyingName();
-                else if (entry.getIdentifyingName().length() <= 56) main = entry.getIdentifyingName().substring(entry.getIdentifyingName().length() - 40);
-                else main = entry.getIdentifyingName().substring(16, 56);
-
-                user.writePacket(new WrapperPlayServerUpdateScore(
-                        main,
-                        WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
-                        internalName,
-                        15 - i,
-                        null,
-                        null
-                ));
-
-                if (entry.getIdentifyingName().length() <= 24) {
-                    if (entry.getLeftDisplayName() == null || (entry.getLeftDisplayName() != null && entry.getLeftDisplayName().length() <= 40)) {
-                        user.writePacket(new WrapperPlayServerTeams(
-                                (internalName + (15 - i)),
-                                WrapperPlayServerTeams.TeamMode.UPDATE,
-                                new WrapperPlayServerTeams.ScoreBoardTeamInfo(
-                                        Component.text("Display" + (15 - i)),
-                                        Component.text(""),
-                                        Component.text(""),
-                                        // Dummy data from here down.
-                                        WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
-                                        WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                                        NamedTextColor.BLACK,
-                                        WrapperPlayServerTeams.OptionData.ALL
-                                )
-                        ));
-                    }
-
-                    user.writePacket(new WrapperPlayServerTeams(
-                            (internalName + (15 - i)),
-                            WrapperPlayServerTeams.TeamMode.REMOVE_ENTITIES,
-                            (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
-                            main
-                    ));
-                }
-
-                updated = true;
-            }
-
-            // If displayName isn't null then it is a line that has to be added to the board.
-            if (entry.getLeftDisplayName() != null) {
-                String prefix = "", main, suffix = "";
-
-                if (entry.getLeftDisplayName().length() <= 40) {
-                    main = entry.getLeftDisplayName();
-                } else if (entry.getLeftDisplayName().length() <= 56) {
-                    prefix = entry.getLeftDisplayName().substring(0, 56 - entry.getLeftDisplayName().length());
-                    main = entry.getLeftDisplayName().substring(56 - entry.getLeftDisplayName().length());
-                } else {
-                    prefix = entry.getLeftDisplayName().substring(0, 16);
-                    main = entry.getLeftDisplayName().substring(16, 56);
-                    suffix = entry.getLeftDisplayName().substring(56);
-                }
-
-                if (!prefix.isEmpty()) {
-                    user.writePacket(new WrapperPlayServerTeams(
-                            (internalName + (15 - i)),
-                            WrapperPlayServerTeams.TeamMode.UPDATE,
-                            new WrapperPlayServerTeams.ScoreBoardTeamInfo(
-                                    Component.text("Display" + (15 - i)),
-                                    Component.text(prefix),
-                                    Component.text(suffix),
-                                    // Dummy data from here down.
-                                    WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
-                                    WrapperPlayServerTeams.CollisionRule.ALWAYS,
-                                    NamedTextColor.BLACK,
-                                    WrapperPlayServerTeams.OptionData.ALL
-                            )
-                    ));
-
-                    user.writePacket(new WrapperPlayServerTeams(
-                            (internalName + (15 - i)),
-                            WrapperPlayServerTeams.TeamMode.ADD_ENTITIES,
-                            (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
-                            main
-                    ));
-                }
-
-                user.writePacket(new WrapperPlayServerUpdateScore(
-                        main,
-                        WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
-                        internalName,
-                        15 - i,
-                        null,
-                        null
-                ));
-
-                updated = true;
-            }
-
-            entry.update();
-        }
-
-        // If the title has been changed then update the scoreboard itself.
-        if (changedTitle) {
-            user.writePacket(new WrapperPlayServerScoreboardObjective(
-                    internalName,
-                    WrapperPlayServerScoreboardObjective.ObjectiveMode.UPDATE,
-                    Component.text(title),
-                    null
-            ));
-
-            updated = true;
-        }
-
-        // Finally, send all packets to the player!
-        if (updated) user.flushPackets();
-    }
-
-    private void updateSafe() {
-        boolean updated = false;
-
-        for (int i = 0; i < 15; i++) {
-            SBScoreboardEntry entry = entries[i];
-
-            // Here we support versions before the 1.20.3 UpdateScore rewrite.
-            if (!entry.hasNameChanged()) continue;
-
-            // If identifyingName isn't null then it is a line that has to be removed from the board.
-            if (entry.getIdentifyingName() != null) {
-                String[] strings = parseStrings(entry.getIdentifyingName(), COLOR_CODES.get(15 - i));
+                // Layout: (0, prefix), (1, name), (2, suffix)
+                String[] strings = separateStrings(entry.getIdentifyingName());
 
                 user.writePacket(new WrapperPlayServerUpdateScore(
                         strings[1],
@@ -352,8 +222,11 @@ public class LegacyScoreboard extends SBScoreboard {
                         null
                 ));
 
+                // If the prefix isn't null, this line used team packets.
                 if (strings[0] != null) {
+                    // If the next section of this update method isn't going to modify the team:
                     if (entry.getLeftDisplayName() == null || (entry.getLeftDisplayName() != null && entry.getLeftDisplayName().length() <= 40)) {
+                        // Reset prefix and suffix to prevent text from being kept on future changes.
                         user.writePacket(new WrapperPlayServerTeams(
                                 (internalName + (15 - i)),
                                 WrapperPlayServerTeams.TeamMode.UPDATE,
@@ -370,6 +243,7 @@ public class LegacyScoreboard extends SBScoreboard {
                         ));
                     }
 
+                    // And remove this "player" from the team.
                     user.writePacket(new WrapperPlayServerTeams(
                             (internalName + (15 - i)),
                             WrapperPlayServerTeams.TeamMode.REMOVE_ENTITIES,
@@ -383,9 +257,12 @@ public class LegacyScoreboard extends SBScoreboard {
 
             // If displayName isn't null then it is a line that has to be added to the board.
             if (entry.getLeftDisplayName() != null) {
-                String[] strings = parseStrings(entry.getLeftDisplayName(), COLOR_CODES.get(15 - i));
+                // Layout: (0, prefix), (1, name), (2, suffix)
+                String[] strings = separateStrings(entry.getLeftDisplayName());
 
+                // If the line is long enough to warrant using a team
                 if (strings[0] != null) {
+                    // Write line info to the team
                     user.writePacket(new WrapperPlayServerTeams(
                             (internalName + (15 - i)),
                             WrapperPlayServerTeams.TeamMode.UPDATE,
@@ -401,6 +278,7 @@ public class LegacyScoreboard extends SBScoreboard {
                             )
                     ));
 
+                    // Write the "player" to the team.
                     user.writePacket(new WrapperPlayServerTeams(
                             (internalName + (15 - i)),
                             WrapperPlayServerTeams.TeamMode.ADD_ENTITIES,
@@ -409,6 +287,7 @@ public class LegacyScoreboard extends SBScoreboard {
                     ));
                 }
 
+                // Write the "player" to the scoreboard.
                 user.writePacket(new WrapperPlayServerUpdateScore(
                         strings[1],
                         WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
@@ -440,73 +319,22 @@ public class LegacyScoreboard extends SBScoreboard {
         if (updated) user.flushPackets();
     }
 
-    private String[] parseStrings(String entry, String unique) {
+    /**
+     * This function rips apart the line into three strings; prefix, main, and suffix.
+     * Prefix can be null, suffix will either be empty or have content, and main will always have content.
+     */
+    private String[] separateStrings(String entry) {
         String prefix = null, main, suffix = "";
-
-        if (entry.length() <= 24) main = entry;
-        else if (entry.length() <= 40) {
+        if (entry.length() <= 40) main = entry;
+        else if (entry.length() <= 56) {
             prefix = entry.substring(0, 16);
             main = entry.substring(16);
         } else {
             prefix = entry.substring(0, 16);
-            main = entry.substring(16, 40);
-            suffix = entry.substring(40);
+            main = entry.substring(16, 56);
+            suffix = entry.substring(56);
         }
 
-        String colorCode = "§f";
-        List<String> formattingCodes = new ArrayList<>();
-        boolean shrink = false;
-
-        if (prefix != null) {
-            char[] prefixChars = prefix.toCharArray();
-            for (int i = 0; i < prefixChars.length - 1; i++) {
-                if (prefixChars[i] == '§') {
-                    String code = "§" + prefixChars[i + 1];
-                    if (code.equals(RESET_CODE)) {
-                        formattingCodes.clear();
-                        colorCode = "§f";
-                    } else if (FORMATTING_CODES.contains(code)) {
-                        formattingCodes.remove(code);
-                        formattingCodes.add(code);
-                    } else if (COLOR_CODES.contains(code)) {
-                        colorCode = code;
-                        formattingCodes.clear();
-                    }
-                }
-            }
-
-            if (prefix.charAt(prefix.length() - 1) == '§') {
-                String code = "§" + main.charAt(0);
-                shrink = true;
-                if (code.equals(RESET_CODE)) {
-                    formattingCodes.clear();
-                    colorCode = "§f";
-                } else if (FORMATTING_CODES.contains(code)) {
-                    formattingCodes.remove(code);
-                    formattingCodes.add(code);
-                } else if (COLOR_CODES.contains(code)) {
-                    colorCode = code;
-                    formattingCodes.clear();
-                } else shrink = false;
-            }
-        }
-
-        if (shrink) {
-            prefix = prefix.substring(0, 15);
-            if (main.length() == 1) main = "";
-            else main = main.substring(0, main.length() - 1);
-        }
-
-        // Format: unique -> &r -> formatting options (5) -> color.
-        // If there are less than 5 formatting options, &r will be repeated.
-        StringBuilder uniqueMain = new StringBuilder(unique + "§r");
-        for (int i = 0; i < 5 - formattingCodes.size(); i++) uniqueMain.append("§r");
-        uniqueMain.append(colorCode);
-        for (String format : formattingCodes) uniqueMain.append(format);
-        uniqueMain.append(main);
-
-        user.sendMessage(uniqueMain.toString().replaceAll("§", "&"));
-
-        return new String[]{prefix, uniqueMain.toString(), suffix};
+        return new String[]{prefix, main, suffix};
     }
 }

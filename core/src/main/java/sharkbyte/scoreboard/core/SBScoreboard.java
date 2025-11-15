@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
 import org.jetbrains.annotations.NotNull;
 import sharkbyte.scoreboard.core.legacy.LegacyScoreboard;
+import sharkbyte.scoreboard.core.legacythirteen.Legacy13Scoreboard;
 import sharkbyte.scoreboard.core.modern.ModernScoreboard;
 
 import java.security.InvalidParameterException;
@@ -23,9 +24,7 @@ public abstract class SBScoreboard {
      * The internalName should be up to 16 characters in 1.8-1.17.2, or unlimited length in 1.18+.
      */
     public static SBScoreboard createScoreboard(User user, String internalName) {
-        if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_3)) {
-            return new ModernScoreboard(user, internalName);
-        } else return new LegacyScoreboard(user, internalName);
+        return createScoreboard(user, internalName, "");
     }
 
     /**
@@ -35,8 +34,10 @@ public abstract class SBScoreboard {
      */
     public static SBScoreboard createScoreboard(User user, String internalName, String title) {
         if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_3)) {
-            return new ModernScoreboard(user, internalName);
-        } else return new LegacyScoreboard(user, internalName);
+            return new ModernScoreboard(user, internalName, title);
+        } else if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_13)) {
+            return new Legacy13Scoreboard(user, internalName, title);
+        } else return new LegacyScoreboard(user, internalName, title);
     }
 
     /**

@@ -1,6 +1,6 @@
 ![Image](../files/SharkByte_Logo.png)
 
-# example
+# core
 
-This module holds the scoreboard management system.
+This module holds the core scoreboard systems.
 

@@ -1,21 +1,31 @@
 ![Image](/files/SharkByte_Logo.png)
 
-# sharkbyte-scoreboard
+# sharkbyte-scoreboard 2.x.x
 
 This is a platform-independent system that allows scoreboards to be created easily. It requires
 [PacketEvents](https://github.com/retrooper/packetevents) to function, which can be downloaded as a plugin on their
 [Modrinth page](https://modrinth.com/plugin/packetevents).
 
-Features:
-- Unlimited characters on 1.18+.
-- 40-character limit on 1.8 - 1.17.2.
-- Simple and lightweight.
-- Can modify left-aligned and right-aligned text separately (1.20.3+).
+1.20.3+ Features:
+- Unlimited characters.
+- Separate left-aligned and right-aligned text abilities.
+- Fully packet based.
+- Simple, lightweight, and extremely optimized.
 
-NOTE: This project will primarily be maintained for 1.20.3+. Versions beneath the UpdateScore packet rewrite may not
-receive support.
+1.13 - 1.20.2 Features:
+- Unlimited characters.
+- Fully packet based.
+- Simple, lightweight, and extremely optimized.
 
-More information about each module can be found inside their respective folders.
+1.8 - 1.12.2 Features:
+- 58 characters on safe mode (equivalent line protection).
+- 72 characters on danger mode (no equivalent line protection).
+- Fully packet based.
+- Simple, lightweight, and extremely optimized.
+
+As of sharkbyte-scoreboard 2.0.0, there has been a ground-up rewrite of the project that ensures all versions of
+Minecraft are now handled properly. While you will likely get the best experience on modern versions due to those
+versions having genuinely better netcode, this project will provide you the best possible experience on each version.
 
 # self promo
 

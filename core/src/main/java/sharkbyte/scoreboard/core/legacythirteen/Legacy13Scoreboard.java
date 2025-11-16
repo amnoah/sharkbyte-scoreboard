@@ -211,15 +211,17 @@ public class Legacy13Scoreboard extends SBScoreboard {
                 ));
 
             } else {
-                user.writePacket(new WrapperPlayServerUpdateScore(
-                        COLOR_CODES[i],
-                        WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
-                        internalName,
-                        15 - i,
-                        null,
-                        null
-                ));
-                entry.setIdentifyingName(null);
+                if (entry.getIdentifyingName() != null) {
+                    user.writePacket(new WrapperPlayServerUpdateScore(
+                            COLOR_CODES[i],
+                            WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
+                            internalName,
+                            15 - i,
+                            null,
+                            null
+                    ));
+                    entry.setIdentifyingName(null);
+                }
             }
 
             updated = true;

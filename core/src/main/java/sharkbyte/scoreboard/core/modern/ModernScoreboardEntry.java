@@ -7,11 +7,12 @@ import sharkbyte.scoreboard.core.SBScoreboardEntry;
 public class ModernScoreboardEntry implements SBScoreboardEntry {
 
     private boolean nameChanged = false;
-    private String identifyingName, leftDisplayName = null, rightDisplayName = null;
+    private String identifyingName;
+    private String leftDisplayName = null;
+    private String rightDisplayName = null;
 
     /**
      * Initialize the ScoreBoardEntry object.
-     * The identifyingName string only matters on 1.20.3+. It can be any value on other versions.
      */
     public ModernScoreboardEntry(String identifyingName) {
         this.identifyingName = identifyingName;
@@ -51,7 +52,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
 
     @Override
     public void setIdentifyingName(String identifyingName) {
-
+        this.identifyingName = identifyingName;
     }
 
     /*

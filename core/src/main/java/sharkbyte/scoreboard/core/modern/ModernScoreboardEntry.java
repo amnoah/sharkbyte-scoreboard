@@ -1,18 +1,22 @@
 package sharkbyte.scoreboard.core.modern;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
 
+/**
+ * This class represents a line on a modern scoreboard.
+ * Modern scoreboards work incredibly efficiently, so little logic is needed here.
+ *
+ * @Author: am noah
+ * @Since: 2.0.0
+ * @Updated: 2.0.0
+ */
 public class ModernScoreboardEntry implements SBScoreboardEntry {
 
     private boolean nameChanged = false;
-    private String identifyingName;
-    private String leftDisplayName = null;
-    private String rightDisplayName = null;
+    private String identifyingName, leftDisplayName = null, rightDisplayName = null;
 
     /**
-     * Initialize the ScoreBoardEntry object.
+     * Initialize the ModernScoreboardEntry object.
      */
     public ModernScoreboardEntry(String identifyingName) {
         this.identifyingName = identifyingName;
@@ -25,6 +29,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * Return the current assigned identifying text for this line.
      */
+    @Override
     public String getIdentifyingName() {
         return identifyingName;
     }
@@ -32,6 +37,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * Return the current assigned left-aligned display text for this line.
      */
+    @Override
     public String getLeftDisplayName() {
         return leftDisplayName;
     }
@@ -39,6 +45,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * Return the current assigned right-aligned display text for this line.
      */
+    @Override
     public String getRightDisplayName() {
         return rightDisplayName;
     }
@@ -46,13 +53,9 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * Return whether any text on this line has been changed.
      */
+    @Override
     public boolean hasNameChanged() {
         return nameChanged;
-    }
-
-    @Override
-    public void setIdentifyingName(String identifyingName) {
-        this.identifyingName = identifyingName;
     }
 
     /*
@@ -60,9 +63,17 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
      */
 
     /**
-     * Manually force a line update.
-     * Currently package-private, may become public in the future.
+     * Manually set the identifying name.
      */
+    @Override
+    public void setIdentifyingName(String identifyingName) {
+        this.identifyingName = identifyingName;
+    }
+
+    /**
+     * Manually force a line update.
+     */
+    @Override
     public void setNameChanged(boolean nameChanged) {
         this.nameChanged = nameChanged;
     }
@@ -74,6 +85,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * Handle a scoreboard update.
      */
+    @Override
     public void update() {
         nameChanged = false;
     }
@@ -81,6 +93,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * This method update this line's left-aligned text to the given text.
      */
+    @Override
     public void updateLeftAlignedText(String text) {
         if (leftDisplayName != null && leftDisplayName.equals(text)) return;
         leftDisplayName = text;
@@ -90,6 +103,7 @@ public class ModernScoreboardEntry implements SBScoreboardEntry {
     /**
      * This method update this line's right-aligned text to the given text.
      */
+    @Override
     public void updateRightAlignedText(String text) {
         if (rightDisplayName != null && rightDisplayName.equals(text)) return;
         rightDisplayName = text;

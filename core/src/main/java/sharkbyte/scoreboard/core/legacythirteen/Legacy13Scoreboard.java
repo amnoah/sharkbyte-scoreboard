@@ -12,17 +12,18 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import sharkbyte.scoreboard.core.SBScoreboard;
 import sharkbyte.scoreboard.core.SBScoreboardEntry;
+import sharkbyte.scoreboard.core.legacy.LegacyScoreboard;
 import sharkbyte.scoreboard.core.modern.ModernScoreboardEntry;
 
+/**
+ * This class represents and handles a scoreboard for a user on a 1.13 - 1.20.2 server.
+ * It is highly optimized and should not cause any performance issues.
+ *
+ * @Author: am noah
+ * @Since: 2.0.0
+ * @Updated: 2.0.0
+ */
 public class Legacy13Scoreboard extends SBScoreboard {
-
-    private final boolean eighteen = PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_18);
-
-    // Yes, I'm aware that this isn't a full list of color codes. We only need 15.
-    private final static String[] COLOR_CODES = {
-            "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9",
-            "§a", "§b", "§c", "§d", "§e"
-    };
 
     /**
      * Initialize the Legacy13Scoreboard object.
@@ -39,6 +40,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
      */
     public Legacy13Scoreboard(User user, String internalName, String title) {
         super(user, internalName, title);
+        boolean eighteen = PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_18);
         if (!eighteen) super.internalName = internalName.length() > 16 ? internalName.substring(0, 16) : internalName;
         for (int i = 0; i < 15; i++) entries[i] = new ModernScoreboardEntry(null);
     }
@@ -66,17 +68,6 @@ public class Legacy13Scoreboard extends SBScoreboard {
         super.setTitle(title);
     }
 
-    /*
-     * Scoreboard Handlers.
-     * TODO: Handle 1.18 unlimited characters
-     * TODO: Reserve 4 (maybe 2?) characters on player names to make hidden color codes to differentiate them.
-     * Notes:
-     * - Internal Name became unlimited in 1.18
-     * - Title became unlimited in 1.13
-     * - Player names on score became unlimited in 1.18
-     * - Team prefix/suffix became unlimited in 1.13
-     */
-
     /**
      * Calling this method will register the scoreboard inside the client.
      */
@@ -91,6 +82,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
                 null
         ));
 
+        // Create all teams required for scoreboards and add the players required for scoreboard display.
         for (int i = 0; i < 15; i++) {
             user.writePacket(new WrapperPlayServerTeams(
                     (internalName + (15 - i)),
@@ -111,7 +103,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
                     (internalName + (15 - i)),
                     WrapperPlayServerTeams.TeamMode.ADD_ENTITIES,
                     (WrapperPlayServerTeams.ScoreBoardTeamInfo) null,
-                    COLOR_CODES[i]
+                    LegacyScoreboard.COLOR_CODES.get(i)
             ));
         }
 
@@ -135,6 +127,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
                 null
         ));
 
+        // Destroy all teams. Don't need to update their players beforehand since it will be deleted with the team.
         for (int i = 0; i < 15; i++) {
             user.writePacket(new WrapperPlayServerTeams(
                     (internalName + (15 - i)),
@@ -170,9 +163,19 @@ public class Legacy13Scoreboard extends SBScoreboard {
         ));
     }
 
+    /**
+     * Calling this method will send out all appropriate packets to update the client's scoreboard.
+     * Don't be afraid to call this often, it will only send packets when required.
+     */
     @Override
     public void update() {
         if (!created) return;
+
+        /*
+         * 1.13 - 1.20.2 modernized scoreboard mechanics... partially. In these versions, scoreboards are still assumed
+         * to only be used to display genuine players, but teams have been modified to be able to display unlimited
+         * characters. THis means that
+         */
 
         boolean updated = false;
 
@@ -181,10 +184,13 @@ public class Legacy13Scoreboard extends SBScoreboard {
 
             if (!entry.hasNameChanged()) continue;
 
+            // If there is text to display
             if (entry.getLeftDisplayName() != null) {
+                // And there is not a line displayed
                 if (entry.getIdentifyingName() == null) {
+                    // Display the line
                     user.writePacket(new WrapperPlayServerUpdateScore(
-                            COLOR_CODES[i],
+                            LegacyScoreboard.COLOR_CODES.get(i),
                             WrapperPlayServerUpdateScore.Action.CREATE_OR_UPDATE_ITEM,
                             internalName,
                             15 - i,
@@ -195,6 +201,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
                     entry.setIdentifyingName("");
                 }
 
+                // And update the text displayed on the team packet.
                 user.writePacket(new WrapperPlayServerTeams(
                         (internalName + (15 - i)),
                         WrapperPlayServerTeams.TeamMode.UPDATE,
@@ -210,10 +217,13 @@ public class Legacy13Scoreboard extends SBScoreboard {
                         )
                 ));
 
+            // If there is not a line to display
             } else {
+                // And there is currently a line displayed
                 if (entry.getIdentifyingName() != null) {
+                    // Remove the line
                     user.writePacket(new WrapperPlayServerUpdateScore(
-                            COLOR_CODES[i],
+                            LegacyScoreboard.COLOR_CODES.get(i),
                             WrapperPlayServerUpdateScore.Action.REMOVE_ITEM,
                             internalName,
                             15 - i,

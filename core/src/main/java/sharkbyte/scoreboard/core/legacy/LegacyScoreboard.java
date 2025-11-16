@@ -60,15 +60,23 @@ public class LegacyScoreboard extends SBScoreboard {
      * Setters.
      */
 
+    /**
+     * Set the danger mode status.
+     * If danger mode is false, the maximum character count will be 58 but sharkbyte-scoreboard will prevent duplicate
+     * lines from occurring. When a duplicate line occurs, one will be removed.
+     * If danger mode is true, the maximum character count will be 72 but there will be no duplicate line protection. If
+     * you enable danger mode and lines disappear from the board, YOU WILL RECEIVE NO SUPPORT.
+     */
     public void setDangerMode(boolean dangerMode) {
         this.dangerMode = dangerMode;
         for (SBScoreboardEntry entry : entries) ((LegacyScoreboardEntry) entry).setDangerMode(dangerMode);
     }
 
     /**
-     * This will only display up to 56 characters. All others will be removed.
+     * This will only display up to 58 characters (72 on danger mode). All others will be removed.
      * Sets the left-aligned text for the given line to the given text.
-     * Setting the value to null will remove the line from the scoreboard.
+     * Setting the value to null will remove the line from the scoreboard. Note that if all lines are set to null the
+     * board will disappear.
      * Valid indices: 0-14.
      */
     @Override
@@ -169,7 +177,7 @@ public class LegacyScoreboard extends SBScoreboard {
 
     /**
      * Calling this method will set this scoreboard as the client's active scoreboard.
-     * Some versions may require a line to be set to display.
+     * You must have a line set on the board for this to work.
      */
     @Override
     public void display() {
@@ -197,13 +205,19 @@ public class LegacyScoreboard extends SBScoreboard {
          * Player Name: 40 characters, cannot have duplicates.
          * Team Suffix: 16 characters, placed after a player's name.
          *
+         * If two player names are identical, the previously added one will be removed.
+         *
          * Theoretically, we could have 72 characters by manipulating a combinations of these - but to ensure we
          * automate things as much as possible, sharkbyte-scoreboard automatically adds unique identifiers to ensure
          * no duplicate lines can happen. These utilize color codes, which are invisible to the end client.
          *
          * These identifiers work like this:
-         * Unique color code: Each line has a separate color code that only it can have. No 2 lines can be the same.
-         * Reset code: Resets formatting to ensure
+         * Unique color code (2): Each line has a separate color code that only it can have. No 2 lines can be the same.
+         * Color code (2): Preserve the previously set color of the line
+         * Formatting codes (10): Preserve the previously set formatting of the line
+         *
+         * This reserves 14 characters, but ensures no duplicate player names are added onto the board. All logic is
+         * handled in the LegacyScoreboardEntry class.
          */
 
         boolean updated = false;
@@ -330,6 +344,15 @@ public class LegacyScoreboard extends SBScoreboard {
      * Prefix can be null, suffix will either be empty or have content, and main will always have content.
      */
     private String[] separateStrings(String entry) {
+
+        /*
+         * Prefix - 16 characters
+         * Name - 40 characters
+         * Suffix - 16 characters
+         *
+         * Prioritize using name, and then add on prefix and suffix as needed.
+         */
+
         String prefix = null, main, suffix = "";
         if (entry.length() <= 40) main = entry;
         else if (entry.length() <= 56) {

@@ -160,6 +160,7 @@ public class ModernScoreboard extends SBScoreboard {
             ));
 
             updated = true;
+            changedTitle = false;
         }
 
         // Finally, send all packets to the player!

@@ -248,6 +248,7 @@ public class Legacy13Scoreboard extends SBScoreboard {
             ));
 
             updated = true;
+            changedTitle = false;
         }
 
         // Finally, send all packets to the player!
